@@ -1,10 +1,11 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
-    android:orientation="vertical">
+    tools:context=".CalibrateCameraActivity">
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/cameraView"
@@ -14,4 +15,4 @@
         opencv:camera_id="any"
         opencv:show_fps="true" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

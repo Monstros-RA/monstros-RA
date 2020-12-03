@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // Checa se a câmera já foi calibrada
         if (cameraMatrix != null && distCoeffs != null) {
-            return detectMarkers(inputFrame.gray());
+            return detectMarkers(inputFrame.rgba());
         }
 
         return inputFrame.rgba();
@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     }
 
     private Mat detectMarkers(Mat inputImage) {
+        Imgproc.cvtColor(inputImage, inputImage, Imgproc.COLOR_BGRA2BGR);
+
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<Mat>();
         List<Mat> rejectedCandidates = new ArrayList<Mat>();

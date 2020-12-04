@@ -64,6 +64,9 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
         super.onResume();
         OpenCVLoader.initDebug();
 
+        if(cameraView != null)
+            cameraView.enableView();
+
         int minSamples = Integer.parseInt(settings.getString(getString(R.string.key_calibration_samples),
                 DEFAULT_MIN_SAMPLES));
         int rows = Integer.parseInt(settings.getString(getString(R.string.key_calibration_rows),

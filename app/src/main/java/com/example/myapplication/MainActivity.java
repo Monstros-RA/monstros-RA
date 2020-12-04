@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     @Override
     protected void onResume() {
         super.onResume();
-        if (OpenCVLoader.initDebug())
-            Toast.makeText(this, "OpenCV loaded successfully!", Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(this, "Failed to load OpenCV", Toast.LENGTH_SHORT).show();
+        OpenCVLoader.initDebug();
+
+        if(mOpenCvCameraView != null)
+            mOpenCvCameraView.enableView();
 
         if (calibrationPreferences.getBoolean("calibrated", false)) {
             loadIntrinsicParameters();

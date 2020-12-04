@@ -1,4 +1,30 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="calibrate_camera">Calibrar câmera</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <!-- Camera calibration preferences -->
+    <string name="key_calibration_samples">calibration_samples</string>
+    <string name="key_calibration_rows">calibration_rows</string>
+    <string name="key_calibration_columns">calibration_columns</string>
+
+    <!-- ArUco preferences -->
+    <string name="key_aruco_dictionary">aruco_dictionary</string>
+    <string name="key_aruco_show_detected">show_detected</string>
+    <string name="key_aruco_show_estimated_pose">show_estimated_pose</string>
+    <string name="key_aruco_marker_length">marker_length</string>
+    <string name="key_aruco_show_rejected">show_rejected</string>
 </resources>

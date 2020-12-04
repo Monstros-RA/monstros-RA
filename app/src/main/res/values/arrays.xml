@@ -1,0 +1,49 @@
+<resources>
+    <!-- ArUco dictionary preferences -->
+    <string-array name="aruco_dictionaries_keys">
+        <item>4x4 50</item>
+        <item>4x4 100</item>
+        <item>4x4 250</item>
+        <item>4x4 1000</item>
+        <item>5x5 50</item>
+        <item>5x5 100</item>
+        <item>5x5 250</item>
+        <item>5x5 1000</item>
+        <item>6x6 50</item>
+        <item>6x6 100</item>
+        <item>6x6 250</item>
+        <item>6x6 1000</item>
+        <item>7x7 50</item>
+        <item>7x7 100</item>
+        <item>7x7 250</item>
+        <item>7x7 1000</item>
+        <item>ArUco original</item>
+        <item>AprilTag 16h5</item>
+        <item>AprilTag 25h9</item>
+        <item>AprilTag 36h10</item>
+        <item>AprilTag 36h11</item>
+    </string-array>
+    <string-array name="aruco_dictionaries_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+    </string-array>
+</resources>

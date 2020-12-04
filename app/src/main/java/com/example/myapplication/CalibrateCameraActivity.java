@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,10 +21,14 @@ import java.util.List;
 
 public class CalibrateCameraActivity extends AppCompatActivity implements
         CameraBridgeViewBase.CvCameraViewListener2, CameraCalibrator.OnCameraCalibratedListener {
+    private static final String DEFAULT_MIN_SAMPLES = "20";
+    private static final String DEFAULT_PATTERN_ROWS = "7";
+    private static final String DEFAULT_PATTERN_COLUMNS = "7";
     public static final String CALIBRATION_PREFERENCES = "calibration";
 
     private CameraCalibrator calibrator;
     private CameraBridgeViewBase cameraView;
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +39,7 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_calibrate_camera);
-        calibrator = new CameraCalibrator(new Size(7, 7));
-        calibrator.setOnCameraCalibratedListener(this);
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Configura a CameraView
         cameraView = findViewById(R.id.cameraView);
@@ -59,6 +63,16 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         OpenCVLoader.initDebug();
+
+        int minSamples = Integer.parseInt(settings.getString(getString(R.string.key_calibration_samples),
+                DEFAULT_MIN_SAMPLES));
+        int rows = Integer.parseInt(settings.getString(getString(R.string.key_calibration_rows),
+                DEFAULT_PATTERN_ROWS));
+        int columns = Integer.parseInt(settings.getString(getString(R.string.key_calibration_columns),
+                DEFAULT_PATTERN_COLUMNS));
+
+        calibrator = new CameraCalibrator(minSamples, new Size(rows, columns));
+        calibrator.setOnCameraCalibratedListener(this);
     }
 
     @Override
@@ -113,7 +127,7 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
 
         double[] distCoeffsArray = new double[5];
         distCoeffs.get(0, 0, distCoeffsArray);
-        for (int i = 9;i < 5 + 9;i++){
+        for (int i = 9;i < 14;i++){
             editor.putFloat(Integer.toString(i), (float) distCoeffsArray[i - 9]);
         }
 

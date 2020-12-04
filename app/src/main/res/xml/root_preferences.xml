@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Calibração">
+
+    </PreferenceCategory>
+    <EditTextPreference
+        android:defaultValue="20"
+        android:inputType="number"
+        android:key="@string/key_calibration_samples"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Número de amostras"
+        app:useSimpleSummaryProvider="true" />
+
+    <EditTextPreference
+        android:defaultValue="7"
+        android:key="@string/key_calibration_rows"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Linhas"
+        app:useSimpleSummaryProvider="true" />
+    <EditTextPreference
+        android:defaultValue="7"
+        android:key="@string/key_calibration_columns"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Colunas"
+        app:useSimpleSummaryProvider="true" />
+    <PreferenceCategory android:title="ArUco">
+
+    </PreferenceCategory>
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/aruco_dictionaries_keys"
+        android:entryValues="@array/aruco_dictionaries_values"
+        android:key="@string/key_aruco_dictionary"
+        android:summary="Dicionário utilizado na detecção dos marcadores"
+        android:title="Dicionário"
+        app:useSimpleSummaryProvider="true" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/key_aruco_show_detected"
+        android:title="Mostrar detectados" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:icon="@drawable/axis"
+        android:key="@string/key_aruco_show_estimated_pose"
+        android:summary="Mostra a pose estimada dos marcadores. Calibração necessária"
+        android:title="Mostrar pose estimada" />
+    <EditTextPreference
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:defaultValue="0.05"
+        android:dependency="@string/key_aruco_show_detected"
+        android:inputType="numberDecimal"
+        android:key="@string/key_aruco_marker_length"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Tamanho do lado do marcador em qualquer unidade. Os vetores de translação das poses estimadas serão dados na mesma unidade"
+        android:title="Tamanho do marcador"
+        app:useSimpleSummaryProvider="true" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/key_aruco_show_rejected"
+        android:title="Mostrar rejeitados" />
+</PreferenceScreen>

@@ -15,12 +15,12 @@ import java.util.Locale;
 
 
 public class CameraCalibrator {
-    private static final int MIN_SAMPLES = 20;
 
     interface OnCameraCalibratedListener {
         void OnCameraCalibrated(Mat cameraMatrix, Mat distCoeffs, List<Mat> rvecs, List<Mat> tvecs);
     }
 
+    private int minSamples = 20;
     private int samples;
     private boolean calibrated;
     private final Size patternSize;
@@ -30,13 +30,14 @@ public class CameraCalibrator {
 
     private OnCameraCalibratedListener listener;
 
-    public CameraCalibrator(Size patternSize) {
+    public CameraCalibrator(int minSamples, Size patternSize) {
         calibrated = false;
         samples = 0;
+        this.minSamples = minSamples;
         this.patternSize = patternSize;
         // Cria as lista já com a capacidade de MIN_SAMPLES
-        objectPoints = new ArrayList<>(MIN_SAMPLES);
-        imagePoints = new ArrayList<>(MIN_SAMPLES);
+        objectPoints = new ArrayList<>(minSamples);
+        imagePoints = new ArrayList<>(minSamples);
 
         // Cria um objeto Mat contendo as coordenadas dos pontos no sistema de coordenadas onde a
         // origem é o canto superior esquerdo do primeiro quadrado
@@ -51,10 +52,10 @@ public class CameraCalibrator {
         }
 
         /*
-        Adiciona MIN_SAMPLES obj em objectPoints (Os objectPoints são fixos quando o tabuleiro é a
+        Adiciona minSamples obj em objectPoints (Os objectPoints são fixos quando o tabuleiro é a
         origem do sistema de coordenadas)
          */
-        for (int i = 0; i < MIN_SAMPLES; i++) {
+        for (int i = 0; i < minSamples; i++) {
             objectPoints.add(obj);
         }
 
@@ -90,7 +91,7 @@ public class CameraCalibrator {
     }
 
     public boolean tryFindPattern(Mat image, boolean drawPattern) throws Exception {
-        if(calibrated || samples > MIN_SAMPLES)
+        if(calibrated || samples > minSamples)
             return false;
 
         MatOfPoint2f corners = new MatOfPoint2f();
@@ -111,7 +112,7 @@ public class CameraCalibrator {
 
             Log.i("Calibrator", String.format("Samples: %d", samples));
 
-            if(samples == MIN_SAMPLES && !calibrated){
+            if(samples == minSamples && !calibrated){
                 calibrate();
             }
 

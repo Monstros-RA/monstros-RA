@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -35,12 +36,21 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "MYAPP::OPENCV";
 
+    // Settings
+    private int dict;
+    private boolean showDecteted;
+    private boolean showEstimatedPose;
+    private boolean showRejected;
+    private float markerLength;
+
     private CameraBridgeViewBase mOpenCvCameraView;
     private SharedPreferences calibrationPreferences;
+    private SharedPreferences settings;
     private Mat cameraMatrix;
     private Mat distCoeffs;
     private Mat rvecs;
     private Mat tvecs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         calibrationPreferences = getSharedPreferences(CalibrateCameraActivity.CALIBRATION_PREFERENCES,
                 Context.MODE_PRIVATE);
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
 
         rvecs = new Mat();
         tvecs = new Mat();
@@ -93,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             Toast.makeText(this, "Câmera não calibrada! Não é possível detectar marcadores",
                     Toast.LENGTH_SHORT).show();
         }
+
+        loadSettings();
     }
 
     @Override
@@ -103,9 +116,14 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        Intent intent;
+        switch (item.getItemId()) {
             case R.id.calibrate_camera:
-                Intent intent = new Intent(MainActivity.this, CalibrateCameraActivity.class);
+                intent = new Intent(MainActivity.this, CalibrateCameraActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.settings:
+                intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
             default:
@@ -144,22 +162,26 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.cvtColor(inputImage, inputImage, Imgproc.COLOR_BGRA2BGR);
 
         Mat ids = new Mat();
-        List<Mat> corners = new ArrayList<Mat>();
-        List<Mat> rejectedCandidates = new ArrayList<Mat>();
+        List<Mat> corners = new ArrayList<>();
+        List<Mat> rejectedCandidates = new ArrayList<>();
         DetectorParameters parameters = DetectorParameters.create();
-        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_ARUCO_ORIGINAL);
+        Dictionary dictionary = Aruco.getPredefinedDictionary(dict);
         Aruco.detectMarkers(inputImage, dictionary, corners, ids, parameters, rejectedCandidates);
 
         Mat outputImage = inputImage.clone();
-        if (rejectedCandidates.size() > 0) {
+        if (showRejected && rejectedCandidates.size() > 0) {
             Aruco.drawDetectedMarkers(outputImage, rejectedCandidates);
         }
         if (corners.size() > 0) {
-            Aruco.drawDetectedMarkers(outputImage, corners, ids);
+            if (showDecteted) {
+                Aruco.drawDetectedMarkers(outputImage, corners, ids);
+            }
 
-            Aruco.estimatePoseSingleMarkers(corners, 1f, cameraMatrix, distCoeffs, rvecs, tvecs);
-            for (int i = 0; i < rvecs.rows(); ++i) {
-                Aruco.drawAxis(outputImage, cameraMatrix, distCoeffs, rvecs.row(i), tvecs.row(i), 0.1f);
+            Aruco.estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+            if (showEstimatedPose) {
+                for (int i = 0; i < rvecs.rows(); ++i) {
+                    Aruco.drawAxis(outputImage, cameraMatrix, distCoeffs, rvecs.row(i), tvecs.row(i), markerLength);
+                }
             }
 
         }
@@ -181,5 +203,13 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             distCoeffsArray[i - 9] = calibrationPreferences.getFloat(Integer.toString(i), 0.0f);
         }
         distCoeffs.put(0, 0, distCoeffsArray);
+    }
+
+    private void loadSettings() {
+        dict = Integer.parseInt(settings.getString(getString(R.string.key_aruco_dictionary), "0"));
+        showDecteted = settings.getBoolean(getString(R.string.key_aruco_show_detected), false);
+        showEstimatedPose = settings.getBoolean(getString(R.string.key_aruco_show_estimated_pose), false);
+        markerLength = Float.parseFloat(settings.getString(getString(R.string.key_aruco_marker_length), "1.0f"));
+        showRejected = settings.getBoolean(getString(R.string.key_aruco_show_rejected), false);
     }
 }

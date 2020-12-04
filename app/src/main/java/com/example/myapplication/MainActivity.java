@@ -20,6 +20,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.calib3d.Calib3d;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCameraPermissionGranted();
         mOpenCvCameraView.setCvCameraViewListener(this);
-        mOpenCvCameraView.setMaxFrameSize(480, 320);
+        mOpenCvCameraView.setMaxFrameSize(640, 480);
         mOpenCvCameraView.enableView();
 
         calibrationPreferences = getSharedPreferences(CalibrateCameraActivity.CALIBRATION_PREFERENCES,
@@ -151,16 +152,21 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         List<Mat> corners = new ArrayList<Mat>();
         List<Mat> rejectedCandidates = new ArrayList<Mat>();
         DetectorParameters parameters = DetectorParameters.create();
-        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_6X6_250);
+        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_ARUCO_ORIGINAL);
         Aruco.detectMarkers(inputImage, dictionary, corners, ids, parameters, rejectedCandidates);
 
         Mat outputImage = inputImage.clone();
+        if (rejectedCandidates.size() > 0) {
+            Aruco.drawDetectedMarkers(outputImage, rejectedCandidates);
+        }
         if (corners.size() > 0) {
             Aruco.drawDetectedMarkers(outputImage, corners, ids);
-            Aruco.estimatePoseSingleMarkers(corners, 0.5f, cameraMatrix, distCoeffs, rvecs, tvecs);
+
+            Aruco.estimatePoseSingleMarkers(corners, 1f, cameraMatrix, distCoeffs, rvecs, tvecs);
             for (int i = 0; i < rvecs.rows(); ++i) {
                 Aruco.drawAxis(outputImage, cameraMatrix, distCoeffs, rvecs.row(i), tvecs.row(i), 0.1f);
             }
+
         }
 
         return outputImage;

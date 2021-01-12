@@ -17,7 +17,9 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class CalibrateCameraActivity extends AppCompatActivity implements
         CameraBridgeViewBase.CvCameraViewListener2, CameraCalibrator.OnCameraCalibratedListener {
@@ -29,6 +31,7 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
     private CameraCalibrator calibrator;
     private CameraBridgeViewBase cameraView;
     private SharedPreferences settings;
+    private long lastCapture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +67,7 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
         super.onResume();
         OpenCVLoader.initDebug();
 
-        if(cameraView != null)
+        if (cameraView != null)
             cameraView.enableView();
 
         int minSamples = Integer.parseInt(settings.getString(getString(R.string.key_calibration_samples),
@@ -99,7 +102,21 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat image = inputFrame.rgba();
         try {
-            calibrator.tryFindPattern(image, true);
+            long currentTime = Calendar.getInstance().getTimeInMillis();
+
+            if (currentTime > lastCapture + 2000) {
+                calibrator.tryFindPattern(image, true);
+                lastCapture = currentTime;
+                if (calibrator.getSamples() < calibrator.getMinSamples()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String text = String.format("%d/%d amostras coletadas", calibrator.getSamples(), calibrator.getMinSamples());
+                            Toast.makeText(CalibrateCameraActivity.this, text, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,12 +125,21 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
 
     @Override
     public void OnCameraCalibrated(Mat cameraMatrix, Mat distCoeffs, List<Mat> rvecs, List<Mat> tvecs) {
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        mainHandler.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(CalibrateCameraActivity.this, "Câmera calibrada com sucesso!",
-                        Toast.LENGTH_SHORT).show();
+                if (tvecs == null)
+                    Toast.makeText(CalibrateCameraActivity.this, "Error: tvecs == null", Toast.LENGTH_SHORT).show();
+                else {
+                    try {
+                        Mat translation = tvecs.get(tvecs.size() - 1);
+                        String text = String.format(Locale.ROOT, "Câmera calibrada com sucesso! Posição da câmera: (%.2f, %.2f, %.2f)",
+                                translation.get(0, 0)[0], translation.get(1, 0)[0], translation.get(2, 0)[0]);
+                        Toast.makeText(CalibrateCameraActivity.this, text, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(CalibrateCameraActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
 
@@ -124,13 +150,13 @@ public class CalibrateCameraActivity extends AppCompatActivity implements
 
         double[] cameraMatrixArray = new double[9];
         cameraMatrix.get(0, 0, cameraMatrixArray);
-        for(int i = 0;i < 9;i++){
+        for (int i = 0; i < 9; i++) {
             editor.putFloat(Integer.toString(i), (float) cameraMatrixArray[i]);
         }
 
         double[] distCoeffsArray = new double[5];
         distCoeffs.get(0, 0, distCoeffsArray);
-        for (int i = 9;i < 14;i++){
+        for (int i = 9; i < 14; i++) {
             editor.putFloat(Integer.toString(i), (float) distCoeffsArray[i - 9]);
         }
 

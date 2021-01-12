@@ -91,9 +91,12 @@ public class CameraCalibrator {
     }
 
     public boolean tryFindPattern(Mat image, boolean drawPattern) throws Exception {
-        if(calibrated || samples > minSamples)
+        if (false && calibrated || samples > minSamples)
             return false;
-
+        else if(samples == minSamples) {
+            imagePoints.remove(0);
+            samples--;
+        }
         MatOfPoint2f corners = new MatOfPoint2f();
 
         if (imageSize == null) {
@@ -110,9 +113,7 @@ public class CameraCalibrator {
             samples++;
             imagePoints.add(corners);
 
-            Log.i("Calibrator", String.format("Samples: %d", samples));
-
-            if(samples == minSamples && !calibrated){
+            if (samples == minSamples) {
                 calibrate();
             }
 
@@ -122,5 +123,13 @@ public class CameraCalibrator {
         }
 
         return patternWasFound;
+    }
+
+    public int getSamples() {
+        return samples;
+    }
+
+    public int getMinSamples(){
+        return minSamples;
     }
 }
